@@ -2,7 +2,6 @@
 <html>
   <head>
     <script src="https://unpkg.com/vue"></script>
-    <!-- <script src="https://unpkg.com/vuex"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.10.2/underscore-min.js"></script>
     <style>
       table {
@@ -12,6 +11,10 @@
       td{
         border: 1px solid black;
         padding: 5px;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        cursor: pointer;
       }
 
 
@@ -25,11 +28,13 @@
           <td v-for="(cardValue, colIndex) in cardRow" :key="getKey(colIndex, rowIndex)">
             <div v-on:click="turnCard(getKey(colIndex, rowIndex))">
               <span v-if="displayCard(getKey(colIndex, rowIndex))">{{ cardValue }}</span>
-              <span v-else>C</span>
+              <span v-else>X</span>
             </div>
           </td>
         </tr>
       </table>
+      <h1>Found</h1>
+      <div>{{foundList}}</div>
 
     </div>
 
@@ -40,24 +45,36 @@
         data() {
           return {
             cardRows: [[4,2,1],[3,6,5]],
-            displayed: []
+            turned: [],
+            found: [5,4,5]
           }
         },
         computed: {
+          foundList(){
+            return this.found.join(", ");
+          }
         },
         methods: {
           displayCard(key){
-            return _.contains( this.displayed, key );
+            return _.contains( this.turned, key );
           },
           turnCard(key){
             if(this.displayCard(key)){
-              this.displayed = _.without(this.displayed, key);
-            }else{
-              this.displayed.push(key);
+              return;
             }
+            if(this.turned.length == 2){
+              this.turned = [];
+            }
+            this.turned.push(key);
           },
           getKey(colIndex, rowIndex){
             return colIndex + '-' + rowIndex;
+          },
+          setValByKey(key, val){
+            var parts = key.split("-");
+            var colIndex = parts[0];
+            var rowIndex = parts[1];
+            this.cardRows[colIndex][rowIndex] = " ";
           }
         }
       });
