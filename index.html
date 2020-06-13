@@ -32,7 +32,7 @@
   </head>
   <body>
     <div id="app">
-      Image Category <input v-model="imageCategory">
+      Image Category <input v-model="nextImageCategory">
       PairCount <input v-model.number="pairCount" type="number">
       <button v-on:click="reset">Reset</button>
       <br><br>
@@ -68,8 +68,9 @@
         el: '#app',
         data() {
           return {
-            imageUrls: [],
-            imageCategory: "dog",
+            imageUrls: {},
+            imageCategory: null,
+            nextImageCategory: "dog",
             pairCount: 6,
             cardRows: [[]],
             turned: [],
@@ -99,6 +100,9 @@
           },
           setImageUrls(){
 
+            // if we've already retrieved for this search...
+            if(_.has(this.imageUrls, this.imageCategory)){return;}
+
             // set up the request parameters
             const params = {
               api_key: "D4914FBBCC7E48479A8602272CAA7D58",
@@ -108,11 +112,12 @@
               images_usage: "non_commercial_reuse"
             }
 
+
             // make the http GET request to Scale SERP
             axios.get('https://api.scaleserp.com/search', { params })
               .then(response => {
 
-                this.imageUrls = response.data.image_results.map(result => result.image);
+                this.imageUrls[this.imageCategory] = response.data.image_results.map(result => result.image);
 
               }).catch(error => {
                 // catch and print the error
@@ -120,20 +125,18 @@
               });
           },
           init(){
+            this.imageCategory = this.nextImageCategory;
             this.tries = 0;
             this.turned = [];
             this.found = [];
             this.tries = 0;
             this.cardRows = this.generateCardRows();
-            this.imageUrls = this.setImageUrls();
+            this.setImageUrls();
           },
           generateCardRows(){
             var fullSet = [];
-            console.log(this.pairCount);
             var half = Array(this.pairCount).fill().map((val, idx) => 1 + idx);
-            console.log(half);
             fullSet = fullSet.concat(half).concat(half);
-            console.log(fullSet);
             var shuffled = _.shuffle(fullSet);
 
             var width = findWidth(this.pairCount * 2);
@@ -168,7 +171,7 @@
             }
           },
           getImageUrlByNum(num){
-            return this.imageUrls[num];
+            return this.imageUrls[this.imageCategory][num];
           },
 
           cardDisplayVal(colIndex, rowIndex){
@@ -182,7 +185,7 @@
 
             if(_.contains(this.turned, key)){
               var val = this.getValByKey(key);
-              var imageUrl = this.imageUrls[val];
+              var imageUrl = this.getImageUrlByNum(val);
               return "<img src='" + imageUrl + "'>";
             }
             
