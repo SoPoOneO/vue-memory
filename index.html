@@ -24,7 +24,7 @@
   <body>
     <div id="app">
       PairCount <input v-model.number="pairCount" type="number">
-      <button v-on:click="init">Generate</button>
+      <button v-on:click="reset">Reset</button>
       <br><br>
       <table>
         <tr v-for="(cardRow, rowIndex) in cardRows">
@@ -78,6 +78,13 @@
           this.init();
         },
         methods: {
+          reset(){
+            if(this.tries > 0 && !this.winState){
+              var really = confirm("Reset game?");
+              if(!really){return;}
+            }
+            this.init();
+          },
           init(){
             this.tries = 0;
             this.turned = [];
