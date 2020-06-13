@@ -32,6 +32,7 @@
           </td>
         </tr>
       </table>
+      <h1>Tries: {{ tries }}</h1>
       <h1>Found</h1>
       <div>{{foundList}}</div>
 
@@ -47,9 +48,11 @@
         el: '#app',
         data() {
           return {
-            cardRows: [[4,2,1],[2,1,4]],
+            pairCount: 6,
+            cardRows: [[]],
             turned: [],
-            found: []
+            found: [],
+            tries: 0
           }
         },
         computed: {
@@ -57,7 +60,18 @@
             return this.found.join(", ");
           }
         },
+        mounted(){
+          console.log('h');
+          this.cardRows = this.generateCardRows();
+        },
         methods: {
+          generateCardRows(){
+            var fullSet = [];
+            var half = [1,2,3,4,5,6];
+            fullSet = fullSet.concat(half).concat(half);
+            var shuffled = _.shuffle(fullSet)
+            return _.chunk(shuffled, 4);
+          },
 
           clickCard(colIndex, rowIndex){
             var key = this.getKey(colIndex, rowIndex);
@@ -70,17 +84,21 @@
               return;
             }
             if(this.turned.length >= 2){
-              this.turned = [];
+              return;
             }
             this.turned.push(key);
 
             if(this.turned.length == 2){
+              this.tries += 1;
               var val1 = this.getValByKey(this.turned[0]);
               var val2 = this.getValByKey(this.turned[1]);
-              if(val1 == val2){
-                this.found.push(val1);
+              setTimeout(()=>{
                 this.turned = [];
-              }
+                if(val1 == val2){
+                  this.found.push(val1);
+                }
+              }, 800);
+                
             }
 
           
