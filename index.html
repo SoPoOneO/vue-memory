@@ -40,8 +40,13 @@
 
     <script>
 
-      function cardCanTurn(key){
-        return true;
+      function findWidth(num){
+
+        var attempt = Math.floor(Math.sqrt(num));
+        while(num % attempt){
+          attempt += 1;
+        }
+        return num/attempt;
       }
 
       new Vue({
@@ -61,16 +66,17 @@
           }
         },
         mounted(){
-          console.log('h');
           this.cardRows = this.generateCardRows();
         },
         methods: {
           generateCardRows(){
             var fullSet = [];
-            var half = [1,2,3,4,5,6];
+            var half = Array(this.pairCount).fill().map((val, idx) => 1 + idx)
             fullSet = fullSet.concat(half).concat(half);
-            var shuffled = _.shuffle(fullSet)
-            return _.chunk(shuffled, 4);
+            var shuffled = _.shuffle(fullSet);
+
+            var width = findWidth(this.pairCount * 2);
+            return _.chunk(shuffled, width);
           },
 
           clickCard(colIndex, rowIndex){
