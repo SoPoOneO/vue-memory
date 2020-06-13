@@ -23,6 +23,9 @@
   </head>
   <body>
     <div id="app">
+      PairCount <input v-model.number="pairCount" type="number">
+      <button v-on:click="init">Generate</button>
+      <br><br>
       <table>
         <tr v-for="(cardRow, rowIndex) in cardRows">
           <td v-for="(cardValue, colIndex) in cardRow">
@@ -34,19 +37,21 @@
       </table>
       <h1>Tries: {{ tries }}</h1>
       <h1>Found</h1>
-      <div>{{foundList}}</div>
-
+      <div>
+        {{ foundList }}
+        <span v-if="winState">You win!</span>
+      </div>
     </div>
 
     <script>
 
       function findWidth(num){
 
-        var attempt = Math.floor(Math.sqrt(num));
+        var attempt = Math.ceil(Math.sqrt(num));
         while(num % attempt){
           attempt += 1;
         }
-        return num/attempt;
+        return attempt;
       }
 
       new Vue({
@@ -63,16 +68,30 @@
         computed: {
           foundList(){
             return this.found.join(", ");
+          },
+          winState(){
+            return this.found.length == this.pairCount;
           }
         },
+
         mounted(){
-          this.cardRows = this.generateCardRows();
+          this.init();
         },
         methods: {
+          init(){
+            this.tries = 0;
+            this.turned = [];
+            this.found = [];
+            this.tries = 0;
+            this.cardRows = this.generateCardRows();
+          },
           generateCardRows(){
             var fullSet = [];
-            var half = Array(this.pairCount).fill().map((val, idx) => 1 + idx)
+            console.log(this.pairCount);
+            var half = Array(this.pairCount).fill().map((val, idx) => 1 + idx);
+            console.log(half);
             fullSet = fullSet.concat(half).concat(half);
+            console.log(fullSet);
             var shuffled = _.shuffle(fullSet);
 
             var width = findWidth(this.pairCount * 2);
